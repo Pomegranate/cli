@@ -1,0 +1,22 @@
+/*
+* Pomegranate Application: {{AppName}}
+* Created On: {{CreateDate}}
+*
+* Pomegranate Runtime Settings.
+*
+*/
+
+
+
+module.exports = {
+  applicationDirectory: './application', // The directory plugins will use
+  pluginDirectory: './plugins', // Local plugins live here.
+  pluginSettingsDirectory: './pluginSettings', // Plugin Settings will be written and read from here.
+  additionalPrefix: [], // Additional Prefixes and namespaces to look for plugins under.
+  logger: console, // Logger object that will be used.
+  timeout: 2000, // Time plugins have to complete a hook before failing.
+  verbose: true, // Log output?
+  logLevel: 1, // How much logging? 0 - 4 (Note that 0 does not === none)
+  colors: true, // Colorize the log output?,
+  telemetry: true // Enables collection of statistical data from the Pomegranate CLI.
+}

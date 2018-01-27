@@ -1,0 +1,21 @@
+/*
+ * Pomegranate Application: {{AppName}}
+ * Created On: {{CreateDate}}
+ *
+ * Pomegranate application start up.
+ *
+ */
+
+'use strict';
+
+const Pomegranate = require('pomegranate')
+const PomegranateSettings = require('./PomegranateSettings')
+
+const pom = Pomegranate(PomegranateSettings)
+
+/*
+ * This returns a promise, so if you need to do something else, after start you can add a .then() here
+ * `pom` is also an event emitter, see the docs for more info [doclink here]
+ */
+
+pom.start()
