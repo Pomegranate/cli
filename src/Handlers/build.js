@@ -82,11 +82,13 @@ function writeConfig({force, environment,settingsPath, configName, configValues,
 
 // The Plugin-Facade handler for this command is responsible for createing plugin workDirs.
 module.exports = function buildHandler(args){
+  let CommonModules = args.CommonModules
+  let Framework = CommonModules.Framework.module
   let cwd = process.cwd()
   let FrameworkSettings = require(path.join(args.path, 'PomegranateSettings.js'))
   let mergedSettings = SettingBuilder(FrameworkSettings, args.path)
   let packageFile = require(path.join(args.path, 'package.json'))
-  let Pom = new args.framework()
+  let Pom = new Framework(CommonModules)
   let FrameDI = Pom.getInjector('Framework')
 
 
