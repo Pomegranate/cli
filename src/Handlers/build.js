@@ -15,8 +15,8 @@ const _fp = require('lodash/fp')
 const map = _fp.map.convert({cap: false})
 const stringifyObject = require('stringify-object');
 const EOL = require('os').EOL
-const functionSettingsTmpl = path.join(__dirname,'../FrameworkTemplates/build/functionSettings.handlebars')
-const objectSettingsTmpl = path.join(__dirname,'../FrameworkTemplates/build/objectSettings.handlebars')
+const functionSettingsTmpl = path.join(__dirname, '../FrameworkTemplates/build/functionSettings.handlebars')
+const objectSettingsTmpl = path.join(__dirname, '../FrameworkTemplates/build/objectSettings.handlebars')
 
 /**
  *
@@ -24,7 +24,7 @@ const objectSettingsTmpl = path.join(__dirname,'../FrameworkTemplates/build/obje
  */
 
 const padObj = obj => {
-  let padded = map(function(line, index){
+  let padded = map(function(line, index) {
     if(index > 0) {
       return '  ' + line
     }
@@ -37,24 +37,22 @@ const padObj = obj => {
 const SingleDefaultConfigs = item => stringifyObject(item[0].defaultOptions, {indent: '  ', singleQuotes: true})
 
 const GroupMultipleConfigs = _fp.compose(_fp.mapValues((item) => {
-  return  item[0].defaultOptions
+  return item[0].defaultOptions
 }), _fp.groupBy('configName'))
 
 const MultipleDefaultConfigs = (config) => {
-  return  stringifyObject(GroupMultipleConfigs(config), {indent: '  ', singleQuotes: true})
+  return stringifyObject(GroupMultipleConfigs(config), {indent: '  ', singleQuotes: true})
 }
 
-
-function writeConfig({force, environment,settingsPath, configName, configValues, compiler}){
-  let configPath = path.join(settingsPath, `${configName}.js`)
+function writeConfig({force, environment, settingsPath, configName, configValues, compiler, cwd}) {
+  let namespace = _fp.every('namespace', configValues) ? _fp.first(configValues).namespace : null
+  let configPath = namespace ? path.join(settingsPath, namespace ,`${configName}.js`) : path.join(settingsPath, `${configName}.js`)
   return Promise.try(() => {
-
-    return fs.pathExists(configPath)
-
-  })
+      return fs.pathExists(configPath)
+    })
     .then((configFileExists) => {
 
-      if(!configFileExists || force){
+      if(!configFileExists || force) {
         if(_fp.some('defaultOptions', configValues)) {
 
           let multiplePlugin = _fp.some('multiple', configValues)
@@ -70,18 +68,18 @@ function writeConfig({force, environment,settingsPath, configName, configValues,
 
           return fs.outputFile(configPath, compiler(templateData))
             .then((res) => {
-              console.log(`${configName} settings file created.`);
+              console.log(`${path.relative(cwd,configPath)} settings file created.`);
               return res
             })
         }
         return
       }
-      console.log(`${configName} settings file exists, skipping.`);
+      console.log(`${path.relative(cwd,configPath)} settings file exists, skipping.`);
     })
 }
 
-// The Plugin-Facade handler for this command is responsible for createing plugin workDirs.
-module.exports = function buildHandler(args){
+// The Plugin-Facade handler for this command is responsible for creating plugin workDirs.
+module.exports = function buildHandler(args) {
   let CommonModules = args.CommonModules
   let Framework = CommonModules.Framework.module
   let cwd = process.cwd()
@@ -90,7 +88,6 @@ module.exports = function buildHandler(args){
   let packageFile = require(path.join(args.path, 'package.json'))
   let Pom = new Framework(CommonModules)
   let FrameDI = Pom.getInjector('Framework')
-
 
   Pom.initialize({packageJSON: packageFile, frameworkOptions: mergedSettings})
     .then((p) => {
@@ -110,7 +107,7 @@ module.exports = function buildHandler(args){
           let force = args.force
           let compiler = result.compiledTemplate
           let writers = map((configValues, configName) => {
-            return writeConfig({force, environment,settingsPath, configValues, configName, compiler})
+            return writeConfig({force, environment, settingsPath, configValues, configName, compiler, cwd})
           })(result.settings)
 
           return Promise.all(writers)
